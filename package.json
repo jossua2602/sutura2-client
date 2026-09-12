@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "sutura2-client",
+=======
+  "name": "sutura-frontend",
+>>>>>>> ef6c2ef48e940b95ef3432baf1cc3d8c24b60bbb
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,11 +13,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "lucide-react": "^1.45.0",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zustand": "^5.0.15"
+=======
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+>>>>>>> ef6c2ef48e940b95ef3432baf1cc3d8c24b60bbb
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -21,7 +31,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+<<<<<<< HEAD
     "eslint-config-next": "16.3.5",
+=======
+    "eslint-config-next": "16.2.10",
+>>>>>>> ef6c2ef48e940b95ef3432baf1cc3d8c24b60bbb
     "tailwindcss": "^4",
     "typescript": "^5"
   }
