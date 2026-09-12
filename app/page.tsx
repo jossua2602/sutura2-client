@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import { redirect } from "next/navigation";
-
-export default function Home() {
-  redirect("/admin-login");
-=======
 "use client"; // Required ito para gumana ang form at states sa Next.js
 
 import { useState } from "react";
@@ -45,8 +39,8 @@ export default function AdminDashboard() {
         // I-save ang secure token sa browser
         localStorage.setItem("admin_token", data.token);
 
-          // I-redirect papuntang dashboard
-          router.push("/dashboard");
+        // I-redirect papuntang dashboard
+        router.push("/dashboard");
       } else {
         setErrorMessage(data.message || "Invalid credentials. Please try again.");
       }
@@ -180,5 +174,4 @@ export default function AdminDashboard() {
       </div>
     </main>
   );
->>>>>>> ef6c2ef48e940b95ef3432baf1cc3d8c24b60bbb
 }
