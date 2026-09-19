@@ -89,10 +89,7 @@ export default function ActiveShopsPage() {
             <h1 className="text-display mt-2 text-4xl text-text-ink">Active shops</h1>
             <p className="mt-2 text-sm text-text-ink-muted">Review subscription dates and control which shops customers can find.</p>
           </div>
-          <button type="button" onClick={() => router.push('/dashboard')} className="inline-flex min-h-11 items-center gap-2 border border-border-line-strong px-3 text-sm text-text-ink-body hover:bg-bg-sunken">
-            <ArrowLeft size={16} aria-hidden="true" />
-            Back to dashboard
-          </button>
+
         </div>
 
         {loading && <p className="mt-8 text-sm text-text-ink-muted">Loading active shops...</p>}

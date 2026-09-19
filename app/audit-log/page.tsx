@@ -122,7 +122,7 @@ export default function AuditLogPage() {
       <div className="mx-auto max-w-[1400px]">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border-line pb-6">
           <div><p className="text-eyebrow text-eyebrow-accent">Sutura administration</p><h1 className="text-display mt-2 text-4xl text-text-ink">Audit management</h1><p className="mt-2 text-sm text-text-ink-muted">Review, filter, and export platform activity.</p></div>
-          <button type="button" onClick={() => router.push('/dashboard')} className="inline-flex min-h-11 items-center gap-2 border border-border-line-strong px-3 text-sm text-text-ink-body hover:bg-bg-sunken"><ArrowLeft size={16} aria-hidden="true" />Back to dashboard</button>
+
         </div>
 
         <div className="mt-6 grid gap-3 border border-border-line bg-bg-surface p-4 md:grid-cols-2 lg:grid-cols-3">

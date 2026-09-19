@@ -2,8 +2,48 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ArrowUpRight, BarChart3, Bell, ClipboardList, FileText, Headphones, LayoutDashboard, LogOut, Menu, Store, Tags, Users, X } from 'lucide-react';
+import {
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  ClipboardList,
+  FileText,
+  Headphones,
+  LayoutDashboard,
+  LogOut,
+  Map,
+  Menu,
+  ShoppingBag,
+  Store,
+  Tags,
+  Users,
+  X,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+import { PendingShopsView } from './PendingShopsView';
+import { ActiveShopsView } from './ActiveShopsView';
+import { ShopDirectoryView } from './ShopDirectoryView';
+import { SubscriptionPlansView } from './SubscriptionPlansView';
+import { ApparelCategoriesView } from './ApparelCategoriesView';
+import { BranchMapView } from './BranchMapView';
+import { SubscriptionReportView } from './SubscriptionReportView';
+import { AccountsView } from './AccountsView';
+import { SupportTicketsView } from './SupportTicketsView';
+import { AuditLogView } from './AuditLogView';
+
+type ActiveView =
+  | 'overview'
+  | 'pending-shop'
+  | 'active-shops'
+  | 'shops'
+  | 'subscription-plans'
+  | 'apparel-categories'
+  | 'branch-map-validation'
+  | 'subscription-report'
+  | 'accounts'
+  | 'support-tickets'
+  | 'audit-log';
 
 interface DashboardStats {
   total_users: number;
@@ -21,13 +61,148 @@ interface NotificationItem {
   created_at: string;
 }
 
+const navItems: { view: ActiveView; label: string; icon: React.ReactNode }[] = [
+  { view: 'overview',              label: 'Overview',             icon: <LayoutDashboard size={17} /> },
+  { view: 'pending-shop',          label: 'Pending shops',        icon: <ClipboardList size={17} /> },
+  { view: 'active-shops',          label: 'Active shops',         icon: <ShoppingBag size={17} /> },
+  { view: 'shops',                 label: 'Shop directory',       icon: <Store size={17} /> },
+  { view: 'subscription-plans',    label: 'Subscription plans',   icon: <Tags size={17} /> },
+  { view: 'apparel-categories',    label: 'Apparel validation',   icon: <Tags size={17} /> },
+  { view: 'branch-map-validation', label: 'Branch map',           icon: <Map size={17} /> },
+  { view: 'subscription-report',   label: 'Subscription report',  icon: <BarChart3 size={17} /> },
+  { view: 'accounts',              label: 'Accounts',             icon: <Users size={17} /> },
+  { view: 'support-tickets',       label: 'Support tickets',      icon: <Headphones size={17} /> },
+  { view: 'audit-log',             label: 'Audit log',            icon: <FileText size={17} /> },
+];
+
+function NavButton({
+  view,
+  label,
+  icon,
+  active,
+  isCollapsed,
+  onClick,
+}: {
+  view: ActiveView;
+  label: string;
+  icon: React.ReactNode;
+  active: boolean;
+  isCollapsed: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={isCollapsed ? label : undefined}
+      aria-current={active ? 'page' : undefined}
+      className={`group flex min-h-[2.5rem] w-full items-center gap-3 border-l-2 text-sm transition-all duration-150 ${
+        isCollapsed ? 'justify-center px-0' : 'pl-3 pr-4'
+      } ${
+        active
+          ? 'border-bg-taupe bg-bg-sunken font-semibold text-text-ink'
+          : 'border-transparent text-text-ink-muted hover:border-border-line-strong hover:bg-bg-sunken hover:text-text-ink'
+      }`}
+    >
+      <span className={`shrink-0 transition-colors ${active ? 'text-bg-taupe' : 'text-text-ink-muted group-hover:text-text-ink-body'}`} aria-hidden="true">
+        {icon}
+      </span>
+      {!isCollapsed && <span>{label}</span>}
+    </button>
+  );
+}
+
+function Sidebar({
+  activeView,
+  isCollapsed,
+  navigate,
+  signOut,
+}: {
+  activeView: ActiveView;
+  isCollapsed: boolean;
+  navigate: (v: ActiveView) => void;
+  signOut: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      {/* Logo */}
+      <div className={`flex items-center py-6 ${isCollapsed ? 'justify-center px-2' : 'px-5'}`}>
+        {isCollapsed ? (
+          <div className="flex h-8 w-8 items-center justify-center rounded bg-bg-taupe text-lg font-bold text-white">
+            S
+          </div>
+        ) : (
+          <Image
+            src="/sutura-logo-nobg.png"
+            alt="Sutura"
+            width={160}
+            height={52}
+            className="h-10 w-auto object-contain object-left"
+            priority
+          />
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className={`border-t border-border-line ${isCollapsed ? 'mx-2' : 'mx-5'}`} />
+
+      {/* Nav */}
+      <nav className="mt-4 flex-1 space-y-0.5 overflow-y-auto pb-4" aria-label="Main navigation">
+        {navItems.map(({ view, label, icon }) => (
+          <NavButton
+            key={view}
+            view={view}
+            label={label}
+            icon={icon}
+            active={activeView === view}
+            isCollapsed={isCollapsed}
+            onClick={() => navigate(view)}
+          />
+        ))}
+      </nav>
+
+      {/* Sign out */}
+      <div className="border-t border-border-line p-3">
+        <button
+          onClick={signOut}
+          title={isCollapsed ? 'Sign out' : undefined}
+          className={`flex w-full items-center gap-3 py-2 text-sm text-text-ink-muted transition-colors hover:text-text-danger ${
+            isCollapsed ? 'justify-center px-0' : 'px-3'
+          }`}
+        >
+          <LogOut size={18} aria-hidden="true" />
+          {!isCollapsed && <span>Sign out</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>('overview');
   const router = useRouter();
+
+  // Load sidebar preference
+  useEffect(() => {
+    const pref = localStorage.getItem('sutura:admin:sidebar:collapsed');
+    if (pref === 'true') setIsSidebarCollapsed(true);
+  }, []);
+
+  function toggleSidebar() {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sutura:admin:sidebar:collapsed', String(next));
+      return next;
+    });
+  }
+
+  const currentNavItem = navItems.find((n) => n.view === activeView);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -66,259 +241,270 @@ export default function AdminDashboardPage() {
     router.push('/admin-login');
   }
 
-  const supportingStats = stats
+  function navigate(view: ActiveView) {
+    setActiveView(view);
+    setMobileNavOpen(false);
+    setNotificationOpen(false);
+  }
+
+  const quickActions: { view: ActiveView; label: string; value: string | number; detail: string }[] = stats
     ? [
-        { label: 'Total users', value: stats.total_users },
-        { label: 'Active subscriptions', value: stats.active_subscriptions },
-        { label: 'Pending registrations', value: stats.pending_registrations },
+        { view: 'pending-shop',       label: 'Review registrations',  value: stats.pending_registrations, detail: 'Awaiting admin approval' },
+        { view: 'active-shops',       label: 'Active shops',          value: stats.active_subscriptions,  detail: 'Currently live on platform' },
+        { view: 'subscription-report',label: 'Live reports',          value: 'View',                      detail: 'Revenue & approval activity' },
+        { view: 'subscription-plans', label: 'Manage plans',          value: 'Plans',                     detail: 'Pricing and feature perks' },
+        { view: 'accounts',           label: 'Account management',    value: stats.total_users,           detail: 'Users, roles and access' },
+        { view: 'support-tickets',    label: 'Support tickets',       value: 'Open',                      detail: 'Respond to shop teams' },
       ]
     : [];
 
   return (
-    <div className="flex min-h-screen bg-bg-canvas">
-      <aside className="hidden w-60 shrink-0 border-r border-border-line bg-bg-surface p-5 lg:flex lg:flex-col">
-        <Image src="/sutura-logo-nobg.png" alt="Sutura" width={180} height={64} className="h-16 w-auto object-contain object-left" priority />
-        <nav className="mt-12 space-y-1" aria-label="Main navigation">
-          <a className="flex min-h-11 items-center gap-3 bg-bg-sunken px-3 text-sm font-medium text-text-ink" href="/dashboard">
-            <LayoutDashboard size={18} aria-hidden="true" />
-            Overview
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/pending-shop">
-            <ClipboardList size={18} aria-hidden="true" />
-            Pending shops
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/active-shops">
-            <Store size={18} aria-hidden="true" />
-            Active shops
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/shops">
-            <Store size={18} aria-hidden="true" />
-            Shop directory
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/subscription-plans">
-            <Tags size={18} aria-hidden="true" />
-            Subscription plans
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/apparel-categories">
-            <Tags size={18} aria-hidden="true" />
-            Apparel validation
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/branch-map-validation">
-            <Store size={18} aria-hidden="true" />
-            Branch map validation
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/subscription-report">
-            <BarChart3 size={18} aria-hidden="true" />
-            Subscription report
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/accounts">
-            <Users size={18} aria-hidden="true" />
-            Accounts
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/support-tickets">
-            <Headphones size={18} aria-hidden="true" />
-            Support tickets
-          </a>
-          <a className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink" href="/audit-log">
-            <FileText size={18} aria-hidden="true" />
-            Audit log
-          </a>
-        </nav>
-        <button onClick={signOut} className="mt-auto flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:text-text-danger">
-          <LogOut size={18} aria-hidden="true" />
-          Sign out
-        </button>
+    <div className="flex h-screen overflow-hidden bg-bg-canvas">
+      {/* ── Desktop sidebar ────────────────────────────────────────────── */}
+      <aside
+        className={`hidden shrink-0 border-r border-border-line bg-bg-surface transition-all duration-300 lg:block ${
+          isSidebarCollapsed ? 'w-[4.5rem]' : 'w-56'
+        }`}
+      >
+        <Sidebar activeView={activeView} isCollapsed={isSidebarCollapsed} navigate={navigate} signOut={signOut} />
       </aside>
 
+      {/* ── Mobile nav overlay ─────────────────────────────────────────── */}
       {mobileNavOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <button
             type="button"
             aria-label="Close navigation"
             onClick={() => setMobileNavOpen(false)}
             className="absolute inset-0 bg-black/30"
           />
-          <aside className="relative flex h-full w-[min(18rem,85vw)] flex-col border-r border-border-line bg-bg-surface p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <Image src="/sutura-logo-nobg.png" alt="Sutura" width={180} height={64} className="h-16 w-auto object-contain object-left" priority />
-              </div>
-              <button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" className="grid min-h-11 min-w-11 place-items-center text-text-ink-muted hover:text-text-ink">
-                <X size={20} aria-hidden="true" />
-              </button>
-            </div>
-            <nav className="mt-10 space-y-1" aria-label="Mobile main navigation">
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 bg-bg-sunken px-3 text-sm font-medium text-text-ink" href="/dashboard">
-                <LayoutDashboard size={18} aria-hidden="true" />
-                Overview
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/pending-shop">
-                <ClipboardList size={18} aria-hidden="true" />
-                Pending shops
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/active-shops">
-                <Store size={18} aria-hidden="true" />
-                Active shops
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/shops">
-                <Store size={18} aria-hidden="true" />
-                Shop directory
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/subscription-plans">
-                <Tags size={18} aria-hidden="true" />
-                Subscription plans
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/apparel-categories">
-                <Tags size={18} aria-hidden="true" />
-                Apparel validation
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/branch-map-validation">
-                <Store size={18} aria-hidden="true" />
-                Branch map validation
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/subscription-report">
-                <BarChart3 size={18} aria-hidden="true" />
-                Subscription report
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/accounts">
-                <Users size={18} aria-hidden="true" />
-                Accounts
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/support-tickets">
-                <Headphones size={18} aria-hidden="true" />
-                Support tickets
-              </a>
-              <a onClick={() => setMobileNavOpen(false)} className="flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:bg-bg-sunken hover:text-text-ink" href="/audit-log">
-                <FileText size={18} aria-hidden="true" />
-                Audit log
-              </a>
-            </nav>
-            <button onClick={signOut} className="mt-auto flex min-h-11 items-center gap-3 px-3 text-sm text-text-ink-muted hover:text-text-danger">
-              <LogOut size={18} aria-hidden="true" />
-              Sign out
+          <aside
+            className="relative flex h-full w-[min(17rem,90vw)] flex-col border-r border-border-line bg-bg-surface"
+          >
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(false)}
+              aria-label="Close navigation"
+              className="absolute right-3 top-4 grid h-9 w-9 place-items-center text-text-ink-muted hover:text-text-ink"
+            >
+              <X size={19} aria-hidden="true" />
             </button>
+            <Sidebar activeView={activeView} isCollapsed={false} navigate={navigate} signOut={signOut} />
           </aside>
         </div>
       )}
 
-      <main className="min-w-0 flex-1">
-        <header className="flex min-h-16 items-center justify-between border-b border-border-line bg-bg-surface px-4 sm:px-6 lg:px-8">
-          <div>
-            <button type="button" onClick={() => setMobileNavOpen(true)} aria-label="Open navigation" className="mr-3 inline-grid min-h-11 min-w-11 place-items-center text-text-ink-muted hover:text-text-ink lg:hidden">
+      {/* ── Main content ───────────────────────────────────────────────── */}
+      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        {/* Sticky header */}
+        <header
+          className="sticky top-0 z-20 flex min-h-14 shrink-0 items-center justify-between border-b border-border-line bg-bg-canvas/95 px-4 sm:px-6 lg:px-8"
+        >
+          <div className="flex items-center gap-3">
+            {/* Mobile menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              aria-label="Open navigation"
+              className="mr-1 grid min-h-9 min-w-9 place-items-center text-text-ink-muted hover:text-text-ink lg:hidden"
+            >
               <Menu size={20} aria-hidden="true" />
             </button>
-            <p className="text-eyebrow text-eyebrow-accent">Sutura operations</p>
-            <p className="text-sm text-text-ink-muted">Admin workspace</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+
+            {/* Desktop sidebar toggle */}
             <button
-              onClick={() => setNotificationOpen((open) => !open)}
-              className="relative grid min-h-11 min-w-11 place-items-center text-text-ink-muted hover:text-text-ink"
-              aria-label="Notifications"
-              aria-expanded={notificationOpen}
+              type="button"
+              onClick={toggleSidebar}
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="hidden grid min-h-8 min-w-8 place-items-center text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink lg:grid"
             >
-              <Bell size={19} aria-hidden="true" />
-              {stats && stats.pending_registrations > 0 && (
-                <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#e41e3f] px-1 text-[10px] text-white">
-                  {stats.pending_registrations > 9 ? '9+' : stats.pending_registrations}
-                </span>
-              )}
+              <Menu size={18} aria-hidden="true" />
             </button>
-            {notificationOpen && (
-              <div className="absolute right-0 top-12 z-10 w-[min(22rem,calc(100vw-2rem))] border border-border-line bg-bg-surface p-4">
-                <div className="flex items-center justify-between border-b border-border-line pb-3">
-                  <p className="text-sm font-medium text-text-ink">Notifications</p>
-                  <span className="text-xs text-text-ink-muted">{stats?.pending_registrations ?? 0} pending</span>
-                </div>
-                <div className="divide-y divide-border-line">
-                  {stats?.notifications.length ? stats.notifications.map((notification) => (
-                    <button
-                      key={notification.id}
-                      type="button"
-                      onClick={() => router.push('/pending-shop')}
-                      className="block w-full py-3 text-left hover:bg-bg-sunken"
-                    >
-                      <p className="text-sm text-text-ink">{notification.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-text-ink-muted">{notification.message}</p>
-                      <p className="mt-2 text-xs font-medium text-bg-taupe">Open pending shops</p>
-                    </button>
-                  )) : (
-                    <p className="py-4 text-sm text-text-ink-muted">No new shop registrations.</p>
-                  )}
-                </div>
-              </div>
-            )}
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-text-ink-faint hidden sm:block">
+                Sutura Admin
+              </p>
+              <p className="text-sm font-semibold text-text-ink leading-tight">
+                {currentNavItem?.label ?? 'Overview'}
+              </p>
             </div>
-            <button onClick={signOut} className="text-sm text-text-ink-muted hover:text-text-ink lg:hidden">Sign out</button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Notification bell */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationOpen((open) => !open)}
+                aria-label="Notifications"
+                aria-expanded={notificationOpen}
+                className="relative grid min-h-9 min-w-9 place-items-center rounded-md text-text-ink-muted transition-colors hover:bg-bg-sunken hover:text-text-ink"
+              >
+                <Bell size={18} aria-hidden="true" />
+                {stats && stats.pending_registrations > 0 && (
+                  <span className="absolute right-1 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-text-danger px-1 text-[10px] font-bold text-white leading-none">
+                    {stats.pending_registrations > 9 ? '9+' : stats.pending_registrations}
+                  </span>
+                )}
+              </button>
+
+              {notificationOpen && (
+                <div
+                  className="fixed inset-0 z-50 flex flex-col bg-bg-surface md:absolute md:inset-auto md:right-0 md:top-11 md:z-30 md:w-88 md:border md:border-border-line md:shadow-none animate-view"
+                >
+                  <div className="flex items-center justify-between border-b border-border-line px-4 py-4 md:py-3">
+                    <p className="text-sm font-semibold text-text-ink">Notifications</p>
+                    <div className="flex items-center gap-3">
+                      <span className="badge badge-taupe">{stats?.pending_registrations ?? 0} pending</span>
+                      <button onClick={() => setNotificationOpen(false)} aria-label="Close" className="md:hidden grid h-8 w-8 place-items-center text-text-ink-muted hover:text-text-ink">
+                        <X size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto divide-y divide-border-line md:max-h-80">
+                    {stats?.notifications.length ? (
+                      stats.notifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() => navigate('pending-shop')}
+                          className="block w-full px-4 py-3 text-left transition-colors hover:bg-bg-sunken"
+                        >
+                          <p className="text-sm font-medium text-text-ink">{notification.title}</p>
+                          <p className="mt-0.5 text-xs leading-5 text-text-ink-muted">{notification.message}</p>
+                          <p className="mt-1.5 text-xs font-semibold text-bg-taupe">Open pending shops →</p>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="px-4 py-6 text-center text-sm text-text-ink-muted">No new registrations.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={signOut}
+              className="hidden items-center gap-1.5 px-3 py-2 text-sm text-text-ink-muted transition-colors hover:text-text-ink lg:flex"
+            >
+              <LogOut size={15} aria-hidden="true" />
+              Sign out
+            </button>
           </div>
         </header>
 
-        <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="animate-rise mb-8">
-            <p className="text-eyebrow">Overview</p>
-            <h1 className="text-display mt-2 text-4xl text-text-ink">Good morning, admin.</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-text-ink-muted">A clear view of the shops and people moving through Sutura today.</p>
-          </div>
+        {/* Page content — key forces re-mount → triggers animate-view */}
+        <div key={activeView} className="animate-view mx-auto w-full max-w-[1400px] flex-1 px-4 py-8 sm:px-6 lg:px-8">
 
-          {loading && <p className="text-sm text-text-ink-muted">Loading your overview...</p>}
+          {/* ── Overview ─────────────────────────────────────────────── */}
+          {activeView === 'overview' && (
+            <div className="mx-auto max-w-5xl">
+              <header className="mb-8">
+                <p className="text-eyebrow text-eyebrow-accent mb-2">Admin Workspace</p>
+                <h1 className="text-display text-[2.5rem] leading-tight text-text-ink">
+                  Platform Overview
+                </h1>
+                <p className="mt-2 text-sm text-text-ink-muted max-w-xl">
+                  A high-level view of system health, active subscriptions, and pending tasks.
+                </p>
+              </header>
 
-          {error && (
-            <p className="border border-border-line-strong bg-bg-sunken p-3 text-sm text-text-danger" role="alert">
-              {error}
-            </p>
-          )}
-
-          {!loading && !error && stats && (
-            <div className="animate-rise space-y-6" style={{ animationDelay: '80ms' }}>
-              <section className="border border-border-line bg-bg-taupe p-6 text-white sm:p-8">
-                <p className="text-eyebrow text-white/70">Focal figure</p>
-                <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-sm text-white/75">Shops in Sutura</p>
-                    <p className="text-figure mt-1 text-6xl leading-none">{stats.total_shops}</p>
+              {loading && (
+                <div className="space-y-4">
+                  <div className="skeleton h-48 w-full rounded" />
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="skeleton h-32 rounded" />
+                    <div className="skeleton h-32 rounded" />
+                    <div className="skeleton h-32 rounded" />
+                    <div className="skeleton h-32 rounded" />
                   </div>
-                  <p className="max-w-xs text-sm leading-6 text-white/75">The current network of tailoring businesses under your care.</p>
                 </div>
-              </section>
+              )}
 
-              <section className="border-y border-border-line bg-bg-surface" aria-label="Overview statistics">
-                <div className="grid divide-y divide-border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                  {supportingStats.map((stat) => (
-                    <div key={stat.label} className="p-5 sm:p-6">
-                      <p className="text-eyebrow">{stat.label}</p>
-                      <p className="text-figure mt-3 text-4xl text-text-ink">{stat.value}</p>
+              {error && (
+                <div className="border-l-2 border-text-danger bg-[#f5e8e5] p-4 text-sm text-text-danger">
+                  <p className="font-semibold">Connection Error</p>
+                  <p className="mt-1">{error}</p>
+                </div>
+              )}
+
+              {!loading && !error && stats && (
+                <div className="space-y-6">
+                  {/* Bento Grid layout */}
+                  <div className="grid gap-6 md:grid-cols-3">
+                    
+                    {/* Focal point: Active Shops (Large Card) */}
+                    <div className="md:col-span-2 border border-border-line bg-bg-surface p-6 sm:p-8 relative overflow-hidden group">
+                      <div className="absolute inset-0 pointer-events-none bg-bg-taupe/5 transition-opacity opacity-0 group-hover:opacity-100" />
+                      <p className="text-eyebrow">Total Shops in Sutura</p>
+                      <div className="mt-4 flex items-baseline gap-4">
+                        <span className="text-figure text-6xl md:text-[5.5rem] font-medium leading-none tracking-tight text-text-ink">
+                          {stats.total_shops}
+                        </span>
+                        <span className="text-sm font-medium text-text-sage">registered</span>
+                      </div>
+                      <div className="mt-8 flex items-center justify-between border-t border-border-line pt-4">
+                        <p className="text-sm text-text-ink-muted">Managing {stats.total_users} registered users</p>
+                        <button onClick={() => navigate('active-shops')} className="text-sm font-semibold text-bg-taupe hover:text-taupe-hover">View directory &rarr;</button>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </section>
 
-              <section className="border border-border-line bg-bg-surface p-5 sm:p-6">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="text-eyebrow text-eyebrow-accent">Quick access</p>
-                    <h2 className="text-display mt-2 text-2xl text-text-ink">Keep the platform moving</h2>
+                    {/* Secondary focal: Action needed */}
+                    <div className="border border-border-line bg-bg-surface p-6 sm:p-8 flex flex-col justify-between">
+                      <div>
+                        <p className="text-eyebrow text-text-danger">Action Required</p>
+                        <div className="mt-4 text-figure text-5xl font-medium text-text-ink">
+                          {stats.pending_registrations}
+                        </div>
+                        <p className="mt-2 text-sm text-text-ink-muted">pending shop registrations</p>
+                      </div>
+                      <button 
+                        onClick={() => navigate('pending-shop')}
+                        className="mt-6 w-full bg-text-ink text-white py-2.5 px-4 text-sm font-semibold hover:bg-bg-taupe transition-colors"
+                      >
+                        Review now
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-sm text-text-ink-muted">Choose an admin workflow</p>
+
+                  {/* Stat Strip */}
+                  <div className="grid grid-cols-2 gap-px bg-border-line border border-border-line lg:grid-cols-4">
+                    {[
+                      { label: 'Active Subs', value: stats.active_subscriptions, view: 'subscription-report' as ActiveView },
+                      { label: 'Pending Verification', value: stats.pending_verifications, view: 'branch-map-validation' as ActiveView },
+                      { label: 'Total Users', value: stats.total_users, view: 'accounts' as ActiveView },
+                      { label: 'Support Tickets', value: 'Open', view: 'support-tickets' as ActiveView }
+                    ].map((item, idx) => (
+                      <div 
+                        key={idx} 
+                        onClick={() => navigate(item.view)}
+                        className="bg-bg-surface p-5 sm:p-6 cursor-pointer group transition-colors hover:bg-bg-sunken"
+                      >
+                        <p className="text-eyebrow mb-2">{item.label}</p>
+                        <p className="text-figure text-2xl text-text-ink">{item.value}</p>
+                        <p className="mt-2 text-xs font-semibold text-text-ink-faint group-hover:text-bg-taupe transition-colors">
+                          View details &rarr;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
                 </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {[
-                    { href: '/pending-shop', label: 'Review registrations', value: stats.pending_registrations, detail: 'Awaiting verification' },
-                    { href: '/active-shops', label: 'Manage active shops', value: stats.total_shops, detail: 'Shop directory' },
-                    { href: '/subscription-report', label: 'Open reports', value: 'Live', detail: 'Revenue and approval activity' },
-                    { href: '/subscription-plans', label: 'Manage plans', value: 'Plans', detail: 'Pricing and perks' },
-                    { href: '/accounts', label: 'Manage accounts', value: stats.total_users, detail: 'Users and roles' },
-                    { href: '/support-tickets', label: 'Support tickets', value: 'Open', detail: 'Respond to shop teams' },
-                  ].map((action) => (
-                    <a key={action.href} href={action.href} className="group flex min-h-24 items-start justify-between border border-border-line p-4 transition-colors hover:border-border-line-strong hover:bg-bg-sunken">
-                      <span><span className="block text-sm font-medium text-text-ink">{action.label}</span><span className="mt-1 block text-xs text-text-ink-muted">{action.detail}</span></span>
-                      <span className="text-right"><span className="text-figure block text-xl text-text-ink">{action.value}</span><ArrowUpRight size={16} className="ml-auto mt-2 text-text-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" /></span>
-                    </a>
-                  ))}
-                </div>
-              </section>
+              )}
             </div>
           )}
+
+          {/* ── Section views ─────────────────────────────────────────── */}
+          {activeView === 'pending-shop'          && <PendingShopsView />}
+          {activeView === 'active-shops'          && <ActiveShopsView />}
+          {activeView === 'shops'                 && <ShopDirectoryView />}
+          {activeView === 'subscription-plans'    && <SubscriptionPlansView />}
+          {activeView === 'apparel-categories'    && <ApparelCategoriesView />}
+          {activeView === 'branch-map-validation' && <BranchMapView />}
+          {activeView === 'subscription-report'   && <SubscriptionReportView />}
+          {activeView === 'accounts'              && <AccountsView />}
+          {activeView === 'support-tickets'       && <SupportTicketsView />}
+          {activeView === 'audit-log'             && <AuditLogView />}
         </div>
       </main>
     </div>

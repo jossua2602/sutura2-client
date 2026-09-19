@@ -105,10 +105,7 @@ export default function AccountsPage() {
             <h1 className="text-display mt-2 text-4xl text-text-ink">Account management</h1>
             <p className="mt-2 text-sm text-text-ink-muted">Manage platform users, roles, and account access.</p>
           </div>
-          <button type="button" onClick={() => router.push('/dashboard')} className="inline-flex min-h-11 items-center gap-2 border border-border-line-strong px-3 text-sm text-text-ink-body hover:bg-bg-sunken">
-            <ArrowLeft size={16} aria-hidden="true" />
-            Back to dashboard
-          </button>
+
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border border-border-line bg-bg-surface p-4 md:flex-row">

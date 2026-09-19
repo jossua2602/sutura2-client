@@ -192,15 +192,7 @@ export default function PendingShopsPage() {
         >
           Pending Shops
         </h1>
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard')}
-          className="inline-flex min-h-11 items-center gap-2 border px-3 text-sm transition-colors hover:bg-bg-sunken"
-          style={{ borderColor: 'var(--border-line-strong)', color: 'var(--text-ink-body)' }}
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          Back to dashboard
-        </button>
+
       </div>
 
       {loading && <p style={{ color: 'var(--text-ink-muted)' }}>Loading...</p>}

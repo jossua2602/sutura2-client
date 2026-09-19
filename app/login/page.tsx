@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function AdminLoginPage() {
+export default function ShopLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-white/15" />
               <span className="text-[11px] font-medium uppercase tracking-widest text-white/40">
-                Sutura Admin
+                Sutura Shop
               </span>
               <div className="h-px flex-1 bg-white/15" />
             </div>
@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
             />
           </div>
 
-          <p className="text-eyebrow text-eyebrow-accent">Admin workspace</p>
+          <p className="text-eyebrow text-eyebrow-accent">Shop workspace</p>
           <h2 className="text-display mt-3 text-[2.2rem] leading-tight text-text-ink">
             Welcome back
           </h2>
@@ -202,6 +202,15 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
+          <p className="mt-7 text-center text-sm text-text-ink-muted">
+            Need a shop account?{' '}
+            <Link
+              href="/register"
+              className="font-semibold text-bg-taupe underline underline-offset-2 hover:text-taupe-hover"
+            >
+              Register your shop
+            </Link>
+          </p>
         </section>
       </div>
     </main>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { Playfair_Display, Inter } from "next/font/google";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["600"] });
@@ -243,31 +244,33 @@ export default function SubscriptionsPage() {
       </div>
 
       {isModalOpen && editingSub && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl border border-[#D8CDC5] overflow-hidden">
-            <div className="bg-[#F6F1ED] px-6 py-4 border-b border-[#D8CDC5] flex justify-between items-center">
-              <h3 className={`${playfair.className} text-xl text-[#4A3F3A]`}>Update Subscription</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#8A7F78] hover:text-red-500 font-bold">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="sub-modal-title">
+          <div className="w-full max-w-md border border-border-line bg-bg-surface overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border-line bg-bg-sunken px-6 py-4">
+              <h3 id="sub-modal-title" className="text-display text-xl text-text-ink">Update Subscription</h3>
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Close" className="grid h-8 w-8 place-items-center text-text-ink-muted hover:text-text-ink">
+                <X size={16} aria-hidden="true" />
+              </button>
             </div>
-            
+
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
-              <div className="mb-2">
-                <p className="text-xs font-semibold text-[#8A7F78]">Shop Name</p>
-                <p className="text-sm font-medium text-[#4A3F3A]">{editingSub.shop_name}</p>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-ink-muted">Shop</p>
+                <p className="mt-0.5 text-sm font-medium text-text-ink">{editingSub.shop_name}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8A7F78] mb-1">Plan Tier</label>
-                  <select name="tier" value={formData.tier} onChange={handleInputChange} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#4A3F3A] focus:outline-none focus:border-[#A88A7B] focus:ring-1 focus:ring-[#A88A7B]">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-text-ink-muted mb-1" htmlFor="sub-tier">Plan tier</label>
+                  <select id="sub-tier" name="tier" value={formData.tier} onChange={handleInputChange} className="min-h-10 w-full border border-border-line bg-bg-canvas px-3 text-sm text-text-ink outline-none focus:border-bg-taupe">
                     <option value="Basic">Basic</option>
                     <option value="Pro">Pro</option>
                     <option value="Premium">Premium</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8A7F78] mb-1">Billing Cycle</label>
-                  <select name="term" value={formData.term} onChange={handleInputChange} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#4A3F3A] focus:outline-none focus:border-[#A88A7B] focus:ring-1 focus:ring-[#A88A7B]">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-text-ink-muted mb-1" htmlFor="sub-term">Billing cycle</label>
+                  <select id="sub-term" name="term" value={formData.term} onChange={handleInputChange} className="min-h-10 w-full border border-border-line bg-bg-canvas px-3 text-sm text-text-ink outline-none focus:border-bg-taupe">
                     <option value="Monthly">Monthly</option>
                     <option value="Yearly">Yearly</option>
                   </select>
@@ -276,31 +279,29 @@ export default function SubscriptionsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8A7F78] mb-1">Start Date</label>
-                  <input required type="date" name="start_date" value={formData.start_date} onChange={handleInputChange} 
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#4A3F3A] focus:outline-none focus:border-[#A88A7B]" />
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-text-ink-muted mb-1" htmlFor="sub-start">Start date</label>
+                  <input id="sub-start" required type="date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="min-h-10 w-full border border-border-line bg-bg-canvas px-3 text-sm text-text-ink outline-none focus:border-bg-taupe" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8A7F78] mb-1">End Date</label>
-                  <input required type="date" name="end_date" value={formData.end_date} onChange={handleInputChange} 
-                    className="w-full px-4 py-2 bg-gray-200 border border-gray-200 rounded-lg text-sm text-[#8A7F78] focus:outline-none focus:border-[#A88A7B]" />
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-text-ink-muted mb-1" htmlFor="sub-end">End date</label>
+                  <input id="sub-end" required type="date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="min-h-10 w-full border border-border-line bg-bg-canvas px-3 text-sm text-text-ink outline-none focus:border-bg-taupe" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#8A7F78] mb-1">Status</label>
-                <select name="status" value={formData.status} onChange={handleInputChange} className="w-full px-4 py-2 bg-gray-200 border border-gray-200 rounded-lg text-sm text-[#8A7F78] focus:outline-none focus:border-[#A88A7B] focus:ring-1 focus:ring-[#A88A7B]">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-text-ink-muted mb-1" htmlFor="sub-status">Status</label>
+                <select id="sub-status" name="status" value={formData.status} onChange={handleInputChange} className="min-h-10 w-full border border-border-line bg-bg-canvas px-3 text-sm text-text-ink outline-none focus:border-bg-taupe">
                   <option value="Active">Active</option>
                   <option value="Expiring">Expiring</option>
                   <option value="Overdue">Overdue</option>
+                  <option value="Expired">Expired</option>
+                  <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
 
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2 text-sm font-medium text-[#8A7F78] bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[#A88A7B] rounded-lg hover:bg-[#8E7265] transition-colors shadow-sm">
-                  Save Changes
-                </button>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 min-h-10 border border-border-line-strong text-sm font-semibold text-text-ink-muted hover:bg-bg-sunken">Cancel</button>
+                <button type="submit" className="flex-1 min-h-10 bg-bg-taupe text-sm font-semibold text-white hover:bg-taupe-hover">Save changes</button>
               </div>
             </form>
           </div>

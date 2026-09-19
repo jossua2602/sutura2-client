@@ -117,7 +117,7 @@ export default function SupportTicketsPage() {
       <div className="mx-auto max-w-[1400px]">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border-line pb-6">
           <div><p className="text-eyebrow text-eyebrow-accent">Sutura administration</p><h1 className="text-display mt-2 text-4xl text-text-ink">Support tickets</h1><p className="mt-2 text-sm text-text-ink-muted">Respond to platform issues and feature requests from shop teams.</p></div>
-          <button type="button" onClick={() => router.push('/dashboard')} className="inline-flex min-h-11 items-center gap-2 border border-border-line-strong px-3 text-sm text-text-ink-body hover:bg-bg-sunken"><ArrowLeft size={16} aria-hidden="true" />Back to dashboard</button>
+
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3 border border-border-line bg-bg-surface p-4">
