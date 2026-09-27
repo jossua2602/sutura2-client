@@ -11,7 +11,7 @@ interface AuditLogEntry {
   action_type: string;
   description: string;
   created_at: string;
-  user: { id: number; name: string; email?: string } | null;
+  user: { id: number; name: string; email?: string; role?: string } | null;
 }
 
 interface UserOption { id: number; name: string; }
@@ -41,7 +41,7 @@ export function AuditLogView() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [search, setSearch] = useState('');
   const [userId, setUserId] = useState('');
-  const [actionType, setActionType] = useState('');
+  const [role, setRole] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
@@ -55,7 +55,7 @@ export function AuditLogView() {
     const params = new URLSearchParams({ page: String(page) });
     if (search) params.set('search', search);
     if (userId) params.set('user_id', userId);
-    if (actionType) params.set('action_type', actionType);
+    if (role) params.set('role', role);
     if (from) params.set('from', from);
     if (to) params.set('to', to);
     if (exportMode) params.set('export', '1');
@@ -86,7 +86,7 @@ export function AuditLogView() {
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Could not load audit logs.'))
       .finally(() => setLoading(false));
-  }, [router, page, search, userId, actionType, from, to]);
+  }, [router, page, search, userId, role, from, to]);
 
   async function exportLogs() {
     const token = localStorage.getItem('token');
@@ -101,7 +101,7 @@ export function AuditLogView() {
   }
 
   function resetFilters() {
-    setSearch(''); setUserId(''); setActionType(''); setFrom(''); setTo(''); setPage(1);
+    setSearch(''); setUserId(''); setRole(''); setFrom(''); setTo(''); setPage(1);
   }
 
   const inputClass = 'min-h-10 border border-border-line bg-bg-canvas px-3 text-sm text-text-ink-body outline-none focus:border-bg-taupe';
@@ -125,7 +125,13 @@ export function AuditLogView() {
           <option value="">All users</option>
           {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
-        <input value={actionType} onChange={(e) => { setActionType(e.target.value); setPage(1); }} placeholder="Action type e.g. SHOP_APPROVED" className={`w-full transition-colors ${inputClass}`} />
+        <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} aria-label="Filter by role" className={`w-full transition-colors ${inputClass}`}>
+          <option value="">All roles</option>
+          <option value="admin">Administrator</option>
+          <option value="shop_owner">Shop owner</option>
+          <option value="staff">Tailoring staff</option>
+          <option value="customer">Customer</option>
+        </select>
         <label className="flex flex-col text-xs font-semibold uppercase tracking-wide text-text-ink-muted">
           From
           <input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className={`mt-1 w-full transition-colors ${inputClass}`} />
@@ -185,6 +191,7 @@ export function AuditLogView() {
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-text-ink">{log.user?.name ?? 'System'}</p>
                       {log.user?.email && <p className="text-xs text-text-ink-faint">{log.user.email}</p>}
+                      {log.user?.role && <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-bg-taupe">{log.user.role.replace('_', ' ')}</p>}
                     </td>
                     <td className="px-4 py-3">
                       <code className="inline-flex items-center rounded-sm bg-bg-sunken px-2 py-0.5 font-mono text-xs font-semibold text-bg-taupe">

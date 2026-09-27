@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, ShieldCheck } from 'lucide-react';
+import { Search, ShieldCheck, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Card } from '../components/Card';
 
@@ -122,10 +122,23 @@ export function AccountsView() {
 
   return (
     <div>
-      <div className="mb-8 border-b border-border-line pb-6">
-        <p className="text-eyebrow text-eyebrow-accent">Sutura administration</p>
-        <h1 className="text-display mt-2 text-4xl text-text-ink">Account management</h1>
-        <p className="mt-2 text-sm text-text-ink-muted">Manage platform users, roles, and account access.</p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border-line pb-6">
+        <div>
+          <p className="text-eyebrow text-eyebrow-accent">Sutura administration</p>
+          <h1 className="text-display mt-2 text-4xl text-text-ink">Account management</h1>
+          <p className="mt-2 text-sm text-text-ink-muted">Manage platform users, roles, and account access.</p>
+        </div>
+        {!loading && !error && (
+          <div className="flex shrink-0 items-center gap-4 rounded-xl border border-border-line bg-bg-sunken px-5 py-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-bg-taupe text-white shadow-sm">
+              <Users size={20} aria-hidden="true" />
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-ink-muted">Total accounts</p>
+              <p className="text-figure mt-0.5 text-3xl leading-none text-text-ink">{accounts.length}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filter bar */}

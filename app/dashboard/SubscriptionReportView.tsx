@@ -31,6 +31,7 @@ export function SubscriptionReportView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<PlanReport | null>(null);
+  const [billingTab, setBillingTab] = useState<'all' | 'monthly' | 'yearly'>('all');
   const router = useRouter();
 
   useEffect(() => {
@@ -184,7 +185,7 @@ export function SubscriptionReportView() {
                 <Card 
                   key={item.plan} 
                   className="p-5 cursor-pointer transition-colors hover:border-bg-taupe/40"
-                  onClick={() => setSelectedPlan(item)}
+                  onClick={() => { setSelectedPlan(item); setBillingTab('all'); }}
                   role="button"
                   tabIndex={0}
                 >
@@ -215,26 +216,61 @@ export function SubscriptionReportView() {
         onClose={() => setSelectedPlan(null)}
         title={`${selectedPlan?.plan} Subscriptions`}
       >
-        <div className="divide-y divide-border-line -mx-4 md:-mx-5 -mt-5">
-          {selectedPlan?.shops?.length ? (
-            selectedPlan.shops.map((shop, i) => (
-              <div key={i} className="flex items-start gap-3 px-4 py-4 md:px-5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-bg-sunken">
-                  <Store size={18} className="text-text-ink-muted" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-text-ink">{shop.shop_name}</p>
-                    <span className="badge badge-muted capitalize">{shop.billing_cycle}</span>
+        {/* Billing cycle tabs */}
+        <div className="-mx-4 mb-4 flex gap-0 border-b border-border-line md:-mx-5">
+          {(['all', 'monthly', 'yearly'] as const).map((tab) => {
+            const count =
+              tab === 'all'
+                ? (selectedPlan?.shops?.length ?? 0)
+                : (selectedPlan?.shops?.filter((s) => s.billing_cycle === tab).length ?? 0);
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setBillingTab(tab)}
+                className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors ${
+                  billingTab === tab
+                    ? 'border-b-2 border-bg-taupe text-text-ink'
+                    : 'text-text-ink-muted hover:text-text-ink'
+                }`}
+              >
+                {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] ${
+                  billingTab === tab ? 'bg-bg-taupe text-white' : 'bg-bg-sunken text-text-ink-muted'
+                }`}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="divide-y divide-border-line -mx-4 md:-mx-5">
+          {(() => {
+            const filtered =
+              billingTab === 'all'
+                ? (selectedPlan?.shops ?? [])
+                : (selectedPlan?.shops ?? []).filter((s) => s.billing_cycle === billingTab);
+            return filtered.length ? (
+              filtered.map((shop, i) => (
+                <div key={i} className="flex items-start gap-3 px-4 py-4 md:px-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-bg-sunken">
+                    <Store size={18} className="text-text-ink-muted" />
                   </div>
-                  <p className="mt-0.5 text-sm text-text-ink-body">{shop.owner_name}</p>
-                  <p className="text-xs text-text-ink-muted">{shop.email}</p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-text-ink">{shop.shop_name}</p>
+                      <span className="badge badge-muted capitalize">{shop.billing_cycle}</span>
+                    </div>
+                    <p className="mt-0.5 text-sm text-text-ink-body">{shop.owner_name}</p>
+                    <p className="text-xs text-text-ink-muted">{shop.email}</p>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="px-6 py-10 text-center text-sm text-text-ink-muted">No active shops on this plan.</p>
-          )}
+              ))
+            ) : (
+              <p className="px-6 py-10 text-center text-sm text-text-ink-muted">
+                No {billingTab === 'all' ? '' : billingTab + ' '}shops on this plan.
+              </p>
+            );
+          })()}
         </div>
       </Modal>
 
